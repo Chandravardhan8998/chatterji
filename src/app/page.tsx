@@ -1,103 +1,171 @@
-import Image from "next/image";
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+'use client';
+
+import { Card, CardContent } from '@/components/ui/card';
+import { PlaceholdersAndVanishInput } from '@/components/ui/placeholders-and-vanish-input';
+import { runQuery, StepsTypes } from '@/lib/api';
+import Markdown from 'react-markdown';
+import { motion } from 'framer-motion';
+import { useState } from 'react';
+
+import { CopyIcon } from 'lucide-react';
+import { toast } from 'sonner';
+import LoaderSteps from '@/components/loader-steps';
+
+const steps: StepsTypes[] = [
+  // 'enhance_prompt',
+  'extract_topic',
+  'extract_sub_topic',
+  'split_text_doc',
+  'embedd_topic',
+  'run_user_query',
+  // 'persona_inject',
+  // 'END',
+];
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [prompt, setPrompt] = useState('');
+  const [result, setResult] = useState<string>();
+  const [currentLoadingStep, setCurrentLoadingStep] = useState<StepsTypes>();
+  const placeholders = [
+    'How to integrate SQL in Django?',
+    'What is Squash and Merge in Git?',
+    'How can I use DevOps with Git?',
+    'What do you have for me?',
+  ];
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.value);
+    setPrompt(e.target.value);
+  };
+
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log('submitted');
+    setCurrentLoadingStep(steps[0]);
+    setResult('');
+    runQuery(prompt, data => {
+      setCurrentLoadingStep(data.next_step);
+      if (data.next_step === 'END') {
+        setResult(data.ui_response_text);
+        console.log('END: ', data.ui_response_text);
+      }
+      console.log('Callback=> ', data);
+    }).finally(() => {
+      setCurrentLoadingStep(undefined);
+    });
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3, duration: 0.6 }}
+      className="flex flex-col  w-full max-w-5xl mx-auto">
+      {/* Header at Top */}
+      <div className="flex flex-row justify-between items-center px-4">
+        <div className="text-center py-4 text-2xl font-semibold ">
+          Welcome to
+          <span className="text-lime-500"> Chatter Ji</span>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </div>
+
+      {/* Scrollable Middle Card */}
+      <Card className="flex-1 overflow-y-auto border border-muted rounded-md">
+        <CardContent className="p-4 h-[calc(100vh-35vh)]">
+          {/* {!!result && <TextGenerateEffect words={result} />} */}
+          <Markdown
+            components={{
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              a: ({ node, ...props }) => (
+                <a
+                  {...props}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 underline"
+                />
+              ),
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              h1: ({ node, ...props }) => (
+                <h1 {...props} className="font-bold p-1 text-lime-200" />
+              ),
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              h2: ({ node, ...props }) => (
+                <h2 {...props} className="font-semibold p-1  text-lime-200" />
+              ),
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              h3: ({ node, ...props }) => (
+                <h3 {...props} className="font-semibold p-1  text-lime-200" />
+              ),
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              p: ({ node, ...props }) => (
+                <p
+                  {...props}
+                  className="font-display italic px-2  text-zinc-200"
+                />
+              ),
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              ul: ({ node, ...props }) => (
+                <ul
+                  {...props}
+                  className="font-display ml-5  text-zinc-200 flex flex-col gap-1 border-l-2 border-zinc-500 pl-2"
+                />
+              ),
+
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              pre: ({ node, ...props }) => (
+                <pre
+                  {...props}
+                  className="text-cyan-600 font-semibold my-2 border-1 border-zinc-600 p-4 rounded-lg">
+                  <div className="flex flex-row p-1 justify-end items-center">
+                    <CopyIcon
+                      className="text-zinc-400"
+                      onClick={() => {
+                        console.log(props.children);
+                        navigator.clipboard
+                          // @ts-expect-error
+                          .writeText(props.children.props.children || 'N/A')
+                          .then(
+                            function () {
+                              console.log(
+                                'Async: Copying to clipboard was successful!',
+                              );
+                              toast('Copied Successfully.');
+                            },
+                            function (err) {
+                              toast('Failed to copy this data.');
+                              console.error(
+                                'Async: Could not copy text: ',
+                                err,
+                              );
+                            },
+                          );
+                      }}
+                    />
+                  </div>
+                  {props.children}
+                </pre>
+              ),
+            }}
+            remarkPlugins={[]}>
+            {result}
+          </Markdown>
+        </CardContent>
+      </Card>
+      <div id="loader" className="flex gap-1 ">
+        {currentLoadingStep && (
+          <LoaderSteps currentLoadingStep={currentLoadingStep} steps={steps} />
+        )}
+      </div>
+
+      {/* Input at Bottom */}
+      <div className="pt-4">
+        <PlaceholdersAndVanishInput
+          placeholders={placeholders}
+          onChange={handleChange}
+          onSubmit={onSubmit}
+        />
+      </div>
+    </motion.div>
   );
 }
