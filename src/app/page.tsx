@@ -19,7 +19,7 @@ const steps: StepsTypes[] = [
   'split_text_doc',
   'embedd_topic',
   'run_user_query',
-  // 'persona_inject',
+  'persona_inject',
   // 'END',
 ];
 

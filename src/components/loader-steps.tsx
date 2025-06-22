@@ -12,6 +12,7 @@ export const stepMessages: Record<StepsTypes, string> = {
   split_text_doc: 'Splitting documentation for detailed analysis...',
   embedd_topic: 'Embedding topics into vector memory...',
   run_user_query: 'Running your query through enhanced context...',
+  persona_inject: 'Hitesh sir is taking over in 3,2,1...',
   END: 'finished process.',
 };
 export default function LoaderSteps({

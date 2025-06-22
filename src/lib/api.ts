@@ -1,5 +1,5 @@
-const url = 'https://chai-code-rag-new.onrender.com';
-// const url = 'http://127.0.0.1:8000';
+// const url = 'https://chai-code-rag-new.onrender.com';
+const url = 'http://127.0.0.1:8000';
 
 export type StepsTypes =
   | 'extract_topic'
@@ -8,8 +8,8 @@ export type StepsTypes =
   | 'split_text_doc'
   | 'embedd_topic'
   | 'run_user_query'
+  | 'persona_inject'
   | 'END';
-//   | 'persona_inject'
 // graph_builder.add_edge("extract_topic","extract_sub_topic")
 // graph_builder.add_edge("extract_sub_topic","split_text_doc")
 // graph_builder.add_edge("split_text_doc","embedd_topic")
